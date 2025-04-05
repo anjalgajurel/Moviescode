@@ -1,45 +1,63 @@
 const API_KEY = '43ea0eb19a1d3f0b1c3c8c3814d3766b'; // Replace this with your TMDB API key
 
-document.getElementById('searchBtn').addEventListener('click', searchMovies);
+window.onload = function() {
+	init();
+	bindListeners();
+}
+
+function init() {
+	console.log("test test.");
+}
+
+function bindListeners() {
+	document.getElementById('searchBtn').addEventListener('click', searchMovies);
+}
+
+function testClick() {
+	console.log("Click Click...");
+}
 
 async function searchMovies() {
-  const query = document.getElementById('searchBox').value.trim();
+	const query = document.getElementById('searchBox').value.trim();
 
-  if (!query) return;
+	if (!query) return;
 
-  const url = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}`;
-  
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
+	const url = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}`;
 
-    const results = document.getElementById('results');
-    results.innerHTML = '';
+	try {
+		const response = await fetch(url);
+		const data = await response.json();
 
-    if (data.results.length === 0) {
-      results.innerHTML = '<p>No movies found.</p>';
-      return;
-    }
+		const results = document.getElementById('results');
+		results.innerHTML = '';
 
-    data.results.forEach(movie => {
-      const movieEl = document.createElement('div');
-      movieEl.classList.add('movie');
+		if (data.results.length === 0) {
+		results.innerHTML = '<p>No movies found.</p>';
+		return;
+		}
 
-      const posterPath = movie.poster_path
-        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-        : 'https://via.placeholder.com/200x300?text=No+Image';
+		const rowDiv = document.createElement('div');
+		rowDiv.classList.add('row');
+		data.results.forEach(movie => {
+			const posterPath = movie.poster_path
+				? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+				: 'https://via.placeholder.com/200x300?text=No+Image';
 
-      movieEl.innerHTML = `
-        <img src="${posterPath}" alt="${movie.title}" />
-        <h3>${movie.title}</h3>
-        <p>${movie.release_date || 'N/A'}</p>
-        <p>${movie.overview.slice(0, 100)}...</p>
-      `;
+			const colDiv = document.createElement('div');
+			colDiv.classList.add('col-4');
+			colDiv.innerHTML = `
+				<img src="${posterPath}" alt="${movie.title}" />
+				<h3>${movie.title}</h3>
+				<p>${movie.release_date || 'N/A'}</p>
+				<p>${movie.overview.slice(0, 100)}...</p>
+			`;
+			
+			rowDiv.appendChild(colDiv);
+		});
 
-      results.appendChild(movieEl);
-    });
-  } catch (error) {
-    console.error('Error fetching movies:', error);
-    document.getElementById('results').innerHTML = '<p>Error loading movies.</p>';
-  }
+		results.appendChild(rowDiv);
+	} catch (error) {
+		console.error('Error fetching movies:', error);
+		document.getElementById('results').innerHTML = '<p>Error loading movies.</p>';
+	}
 }
